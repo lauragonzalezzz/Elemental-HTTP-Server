@@ -76,9 +76,9 @@ var server = http.createServer(function(req, res){
 
       req.on('end', function(){
 
-        var newFile = fs.createWriteStream(path);
+        var updatedFile = fs.createWriteStream(path);
 
-        fs.readFile("./template.js", function(err, data){
+        fs.readFile("./template.html", function(err, data){
           if (err){
             process.stdout.write("Oh noes! I made a mistake!");
           }
@@ -89,8 +89,8 @@ var server = http.createServer(function(req, res){
           tempData = tempData.replace("elementAtomicNumber", elementAtomicNumber);
           tempData = tempData.replace("elementDescription", elementDescription);
 
-        newFile.write(tempData);
-        newFile.end();
+        updatedFile.write(tempData);
+        updatedFile.end();
         }); //Ends template.read
 
         fs.readFile("./public/index.html", function(err, data){
@@ -112,70 +112,89 @@ var server = http.createServer(function(req, res){
   }  //Ends if METHOD === POST
 
   if (method === 'PUT'){
-    req.on('data', function(data){
-      putData = data.toString();
-      dataByElement = putData.split('&');
+    fs.readFile("public" + path, function(err, data){
+      if (err){
+        returnError(res);
+        console.log('change to 505');
+      }
+      req.on('data', function(data){
+        putData = data.toString();
+        dataByElement = putData.split('&');
 
-      fs.readdir("./public", function(err, data){
-        if (err){
-          process.stdout.write("oops! my fault!")
-        }
-        var files = data.toString().split(',');
-        for (var i = 0; i < files.length; i++){
-          if (files[i].indexOf(path) === -1){
-            res.writeHead(500, {
-              "Content-Type": "application/json",
-              "Server": "LG Servers"
-            });
-            console.log('path',path);
-            res.write({ "error" : "resource " + path + " does not exist" });
-            res.end();
+        var elementName = null;
+        var elementSymbol = null;
+        var elementAtomicNumber = null;
+        var elementDescription = null;
+
+        for (var i = 0; i < dataByElement.length; i++){
+          if (dataByElement[i].indexOf('elementName') !== -1){
+            elementName = dataByElement[i].split("=")[1];
           }
-          else {
+          else if (dataByElement[i].indexOf('elementSymbol') !== -1){
+            elementSymbol = dataByElement[i].split("=")[1];
+          }
+          if (dataByElement[i].indexOf('elementAtomicNumber') !== -1){
+            elementAtomicNumber = dataByElement[i].split("=")[1];
+          }
+          if (dataByElement[i].indexOf('elementDescription') !== -1){
+            elementDescription = dataByElement[i].split("=")[1];
+          }
+        }
 
-            var elementName = null;
-            var elementSymbol = null;
-            var elementAtomicNumber = null;
-            var elementDescription = null;
+        if (elementName === null ||
+          elementSymbol === null ||
+          elementAtomicNumber === null ||
+          elementDescription === null) {
+          process.stdout.write('NOPE');
+          returnError(res);
+          res.end();
+        }
+        else {
+          res.writeHead(200, {
+            "Content-Type": 'application/json',
+            "Server": "LG Servers"
+          });
+          res.write('{"Success" : true}');
+          process.stdout.write('Success');
+          res.end();
+        } //ENDS ELSE
 
-            for (var i = 0; i < dataByElement.length; i++){
-              if (dataByElement[i].indexOf('elementName') !== -1){
-                elementName = dataByElement[i].split("=")[1];
-              }
-              else if (dataByElement[i].indexOf('elementSymbol') !== -1){
-                elementSymbol = dataByElement[i].split("=")[1];
-              }
-              if (dataByElement[i].indexOf('elementAtomicNumber') !== -1){
-                elementAtomicNumber = dataByElement[i].split("=")[1];
-              }
-              if (dataByElement[i].indexOf('elementDescription') !== -1){
-                elementDescription = dataByElement[i].split("=")[1];
-              }
+        req.on('end', function(){
+
+          var newFile = fs.createWriteStream("public" + path);
+
+          fs.readFile("./template.html", function(err, data){
+            if (err){
+              process.stdout.write("Oh noes! I made a mistake!");
             }
+            var tempData = data.toString();
 
-            if (elementName === null ||
-              elementSymbol === null ||
-              elementAtomicNumber === null ||
-              elementDescription === null) {
-              process.stdout.write('NOPE');
-              returnError(res);
-              res.end();
+            tempData = tempData.replace("elementName", elementName);
+            tempData = tempData.replace("elementSymbol", elementSymbol);
+            tempData = tempData.replace("elementAtomicNumber", elementAtomicNumber);
+            tempData = tempData.replace("elementDescription", elementDescription);
+
+            newFile.write(tempData);
+            newFile.end();
+          }); //Ends template.read
+
+          fs.readFile("./public/index.html", function(err, data){
+            if (err){
+              process.stdout.write("Oh noes! I made a mistake!");
             }
-            // else if (fs.readdir("public/" + path))
-            else {
-              res.writeHead(200, {
-                "Content-Type": 'application/json',
-                "Server": "LG Servers"
-              });
-              res.write('{"Success" : true}')
-              res.end();
+            var indexData = data.toString();
+            var newLink = "  <li>\n      <a href='" + path + "'>" + elementName + "</a>\n    </li>\n  </ol>";
 
-            } //ENDS ELSE
-          } //End ELSE
-        } //End FOR loop
-      }); //End public dir read
+            indexData = indexData.replace("</ol>", newLink);
 
-    }); //Ends req.on('data')
+            var newIndex = fs.createWriteStream("./public/index.html");
+            newIndex.write(indexData);
+            newIndex.end();
+          });
+
+        }); //Ends req.on('end')
+      }); //Ends req.on('data')
+    }); //Ends fs.readFile
   } //Ends if METHOD === PUT
 }); //Ends Server
 
@@ -194,7 +213,7 @@ function returnError(res){
       "Server": "LG Servers"
     });
     res.write(data);
-    res.end();
+    return res.end();
   });
 };
 
