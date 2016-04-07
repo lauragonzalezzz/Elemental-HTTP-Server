@@ -3,13 +3,13 @@ var fs = require('fs');
 
 var server = http.createServer(function(req, res){
   method = req.method;
-  path = "." + req.url;
+  path = req.url;
 
   var date = new Date();
   date = date.toUTCString();
 
   if (method === 'GET'){
-    fs.readFile(path, function(err, data){
+    fs.readFile("." + path, function(err, data){
       if (err){
         console.log('theres been a problem, sorry');
         console.log('err',err);
@@ -19,26 +19,32 @@ var server = http.createServer(function(req, res){
           "HTTP/1.1 200 OK \n" +
           "date: " + date + "\n" +
           "server: LG Servers \n\n" + data);
+        res.end();
       }
     }); //Ends fs.readFile
   } //Ends If Statement
 
   if (method === 'POST'){
-    if (path.indexOf('.') !== -1){
-      path = path + ".html";
+    if (path.lastIndexOf('.') === 0){
+      path = "public" + path + ".html";
+    console.log('path',path);
     }
+    else {
+      path = "public" + path;
+    }
+
     var newFile = fs.createWriteStream(path);
     res.pipe(newFile);
     res.on('end', function(){
       newFile.end();
     });
+    res.write(
+      "HTTP/1.1 200 OK \n" +
+      "content-type: application/json \n" +
+      "date: " + date + "\n" +
+      "server: LG Servers \n\n" + {'Success' : true})
+    res.end();
   }
-  res.write(
-    "HTTP/1.1 200 OK \n" +
-    "content-type: application/json \n" +
-    "date: " + date + "\n" +
-    "server: LG Servers \n\n" + {'Success' : true});
-  res.end();
 }); //Ends Server
 
 
