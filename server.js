@@ -10,15 +10,16 @@ var server = http.createServer(function(req, res){
   date = date.toUTCString();
 
   if (method === 'GET'){
-    fs.readFile("." + path, function(err, data){
+    fs.readFile("public" + path, function(err, data){
       if (err){
         returnError(res)
       }
       else {
-        res.write(
-          "HTTP/1.1 200 OK \n" +
-          "date: " + date + "\n" +
-          "server: LG Servers \n\n" + data);
+        res.writeHead(200, {
+          "Content-Type": 'text/html',
+          "Server": "LG Servers"
+        });
+        res.write(data);
         res.end();
       }
     }); //Ends fs.readFile
@@ -87,6 +88,8 @@ var server = http.createServer(function(req, res){
 
         newFile.write(tempData);
 
+
+
         newFile.end();
         }); //Ends template.read
       }); //Ends req.on('end')
@@ -99,15 +102,14 @@ server.listen({port: 8080}, function(){
   var address = server.address();
 });
 
-
-
 function returnError(res){
   fs.readFile('./public/404.html', function(err, data){
     if (err){
       throw new Error(err);
     }
     res.writeHead(404, {
-      "server": "LG Servers"
+      "Content-Type": "text/html",
+      "Server": "LG Servers"
     });
     res.write(data);
     res.end();
