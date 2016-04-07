@@ -57,7 +57,7 @@ var server = http.createServer(function(req, res){
         }
       }
       if (elementName === null) {
-        console.log('NOPE');
+        process.stdout.write('NOPE');
         returnError(res);
         res.end();
       }
@@ -77,7 +77,7 @@ var server = http.createServer(function(req, res){
 
         fs.readFile("./template.js", function(err, data){
           if (err){
-            console.log('Oh noes! I made a mistake!');
+            process.stdout.write("Oh noes! I made a mistake!");
           }
           var tempData = data.toString();
 
@@ -87,11 +87,23 @@ var server = http.createServer(function(req, res){
           tempData = tempData.replace("elementDescription", elementDescription);
 
         newFile.write(tempData);
-
-
-
         newFile.end();
         }); //Ends template.read
+
+        fs.readFile("./public/index.html", function(err, data){
+          if (err){
+            process.stdout.write("Oh noes! I made a mistake!");
+          }
+          var indexData = data.toString();
+          var newLink = "  <li>\n      <a href='" + path + "'>" + elementName + "</a>\n    </li>\n  </ol>";
+
+          indexData = indexData.replace("</ol>", newLink);
+
+          var newIndex = fs.createWriteStream("./public/index.html");
+          newIndex.write(indexData);
+          newIndex.end();
+        });
+
       }); //Ends req.on('end')
     }); //Ends req.on('data')
   }  //Ends if METHOD === POST
