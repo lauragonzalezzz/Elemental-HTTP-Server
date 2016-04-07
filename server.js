@@ -2,8 +2,9 @@ var http = require('http');
 var fs = require('fs');
 
 var server = http.createServer(function(req, res){
-  method = req.method;
-  path = req.url;
+  var method = req.method;
+  var path = req.url;
+  var myData = null;
 
   var date = new Date();
   date = date.toUTCString();
@@ -27,22 +28,28 @@ var server = http.createServer(function(req, res){
   if (method === 'POST'){
     if (path.lastIndexOf('.') === 0){
       path = "public" + path + ".html";
-    console.log('path',path);
     }
     else {
       path = "public" + path;
     }
 
-    var newFile = fs.createWriteStream(path);
-    res.pipe(newFile);
-    res.on('end', function(){
-      newFile.end();
+    req.on('data', function(data){
+      myData = data.toString();
+      console.log('myData',myData);
+
     });
-    res.write(
-      "HTTP/1.1 200 OK \n" +
-      "content-type: application/json \n" +
-      "date: " + date + "\n" +
-      "server: LG Servers \n\n" + {'Success' : true})
+
+    // var newFile = fs.createWriteStream(path);
+    // res.pipe(newFile);
+    // res.on('end', function(){
+    //   newFile.end();
+    // });
+    res.writeHead(200, {
+      "Content-Type": 'application/json',
+      "Date": + date,
+      "Server": "LG Servers"
+    });
+    res.write('{"Success" : true}')
     res.end();
   }
 }); //Ends Server
@@ -51,7 +58,6 @@ var server = http.createServer(function(req, res){
 server.listen({port: 8080}, function(){
   var address = server.address();
 });
-
 // function returnError(res, date){
 //   res.write(
 //     "HTTP/1.1 404 Not Found \n" +
