@@ -35,9 +35,31 @@ var server = http.createServer(function(req, res){
 
     req.on('data', function(data){
       myData = data.toString();
-      console.log('myData',myData);
+      dataByElement = myData.split('&');
 
-    });
+      var elementName = null;
+      var elementSymbol = null;
+      var elementAtomicNumber = null;
+      var elementDescription = null;
+
+      for (var i = 0; i < dataByElement.length; i++){
+        if (dataByElement[i].indexOf('elementName') !== -1){
+          elementName = dataByElement[i].split("=")[1];
+        }
+        else if (dataByElement[i].indexOf('elementSymbol') !== -1){
+          elementSymbol = dataByElement[i].split("=")[1];
+        }
+        if (dataByElement[i].indexOf('elementAtomicNumber') !== -1){
+          elementAtomicNumber = dataByElement[i].split("=")[1];
+        }
+        if (dataByElement[i].indexOf('elementDescription') !== -1){
+          elementDescription = dataByElement[i].split("=")[1];
+        }
+      }
+      if (elementName === null) {
+        console.log('NOPE');
+      }
+    }); //Ends req.on('data')
 
     // var newFile = fs.createWriteStream(path);
     // res.pipe(newFile);
@@ -50,6 +72,7 @@ var server = http.createServer(function(req, res){
       "Server": "LG Servers"
     });
     res.write('{"Success" : true}')
+    console.log('success!');
     res.end();
   }
 }); //Ends Server
@@ -58,6 +81,7 @@ var server = http.createServer(function(req, res){
 server.listen({port: 8080}, function(){
   var address = server.address();
 });
+
 // function returnError(res, date){
 //   res.write(
 //     "HTTP/1.1 404 Not Found \n" +
