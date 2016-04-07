@@ -58,22 +58,42 @@ var server = http.createServer(function(req, res){
       }
       if (elementName === null) {
         console.log('NOPE');
+        returnError(res);
+        res.end();
       }
+      else {
+        res.writeHead(200, {
+          "Content-Type": 'application/json',
+          "Server": "LG Servers"
+        });
+        res.write('{"Success" : true}')
+        res.end();
+
+      } //ENDS ELSE
+
+      req.on('end', function(){
+
+        var newFile = fs.createWriteStream(path);
+
+        fs.readFile("./template.js", function(err, data){
+          if (err){
+            console.log('Oh noes! I made a mistake!');
+          }
+          var tempData = data.toString();
+
+          tempData = tempData.replace("elementName", elementName);
+          tempData = tempData.replace("elementSymbol", elementSymbol);
+          tempData = tempData.replace("elementAtomicNumber", elementAtomicNumber);
+          tempData = tempData.replace("elementDescription", elementDescription);
+
+        newFile.write(tempData);
+
+        newFile.end();
+        });
+      }); //Ends req.on('end')
+
     }); //Ends req.on('data')
 
-    // var newFile = fs.createWriteStream(path);
-    // res.pipe(newFile);
-    // res.on('end', function(){
-    //   newFile.end();
-    // });
-    res.writeHead(200, {
-      "Content-Type": 'application/json',
-      "Date": + date,
-      "Server": "LG Servers"
-    });
-    res.write('{"Success" : true}')
-    console.log('success!');
-    res.end();
   }
 }); //Ends Server
 
@@ -82,9 +102,11 @@ server.listen({port: 8080}, function(){
   var address = server.address();
 });
 
-// function returnError(res, date){
-//   res.write(
-//     "HTTP/1.1 404 Not Found \n" +
-//     "date: " + date + "\n" +
-//     "server: LG Servers \n\n");
-// };
+
+
+function returnError(res){
+  res.writeHead(404, {
+    "server": "LG Servers"
+  });
+  res.end();
+};
