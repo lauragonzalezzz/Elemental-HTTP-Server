@@ -114,8 +114,12 @@ var server = http.createServer(function(req, res){
   if (method === 'PUT'){
     fs.readFile("public" + path, function(err, data){
       if (err){
-        returnError(res);
-        console.log('change to 505');
+        res.writeHead(500, {
+          "Content-Type": "text/html",
+          "Server": "LG Servers"
+        });
+        res.write('{ "error" : "resource "' + path + '" does not exist"}');
+        return res.end();
       }
       req.on('data', function(data){
         putData = data.toString();
@@ -191,11 +195,36 @@ var server = http.createServer(function(req, res){
             newIndex.write(indexData);
             newIndex.end();
           });
-
         }); //Ends req.on('end')
       }); //Ends req.on('data')
     }); //Ends fs.readFile
   } //Ends if METHOD === PUT
+
+  if (method === 'DELETE'){
+    fs.readFile("public" + path, function(err, data){
+      if (err){
+        res.writeHead(500, {
+          "Content-Type": "text/html",
+          "Server": "LG Servers"
+        });
+        res.write('{ "error" : "resource "' + path + '" does not exist"}');
+        return res.end();
+      }
+      console.log('path',path);
+      fs.unlink("public" + path);
+      console.log('unlinked!');
+
+      res.writeHead(200, {
+        "Content-Type": 'application/json',
+        "Server": "LG Servers"
+      });
+      res.write('{"Success" : true}');
+      process.stdout.write('Success');
+      res.end();
+    }); //Ends Public readFile
+  } //Ends if METHOD === DELETE
+
+
 }); //Ends Server
 
 
