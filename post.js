@@ -65,8 +65,19 @@ var postModule = function(req, res, path){
         }
         var indexData = data.toString();
         var newLink = "  <li>\n      <a href='./public/" + elementName + ".html'>" + elementName + "</a>\n    </li>\n  </ol>";
+        var h3 = indexData.indexOf("<h3>");
+        var ol = indexData.indexOf("<ol>");
+        var oldLine = indexData.slice(h3, ol);
+
+        var h3Arr = indexData.slice(h3, ol).split(" ");
+        var num = Number(h3Arr[3]);
+        var newNum = num + 1;
+        h3Arr[3] = newNum;
+
+        var newLine = h3Arr.join(" ");
 
         indexData = indexData.replace("</ol>", newLink);
+        indexData = indexData.replace(oldLine, newLine);
         fs.writeFile("./public/index.html", indexData, function(err){
           if (err){
             throw new Error(err);
