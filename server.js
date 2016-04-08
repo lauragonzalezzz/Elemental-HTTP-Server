@@ -210,16 +210,36 @@ var server = http.createServer(function(req, res){
         res.write('{ "error" : "resource "' + path + '" does not exist"}');
         return res.end();
       }
-      console.log('path',path);
+
       fs.unlink("public" + path);
-      console.log('unlinked!');
+
+      fs.readFile("./public/index.html", function(err, data){
+        if (err){
+          process.stdout.write("Oh noes! I made a mistake!");
+        }
+        var indexData = data.toString();
+        var name = path.replace("/", "");
+        name = name.replace(".html", "");
+        name = name.charAt(0).toUpperCase() + name.slice(1);
+
+        var newLink = "  <li>\n      <a href='public" + path + "'>" + name + "</a>\n    </li>";
+
+        if (indexData.indexOf(newLink) !== -1){
+          indexData = indexData.replace(newLink, '');
+        };
+
+
+        var newIndex = fs.createWriteStream("./public/index.html");
+        newIndex.write(indexData);
+        newIndex.end();
+      });
 
       res.writeHead(200, {
         "Content-Type": 'application/json',
         "Server": "LG Servers"
       });
       res.write('{"Success" : true}');
-      process.stdout.write('Success');
+      process.stdout.write('Success\n');
       res.end();
     }); //Ends Public readFile
   } //Ends if METHOD === DELETE
