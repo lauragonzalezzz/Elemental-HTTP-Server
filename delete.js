@@ -1,5 +1,6 @@
-var deleteModule = function(req, res){
-  if (method === 'DELETE'){
+var deleteModule = function(req, res, path){
+  var fs = require('fs');
+
       fs.readFile("public" + path, function(err, data){
         if (err){
           res.writeHead(500, {
@@ -40,7 +41,6 @@ var deleteModule = function(req, res){
           });
         }); //Ends Public readFile
       }); //Ends path readFile
-  } //Ends if METHOD === DELETE
 } //Ends deleteModule function
 
 module.exports = deleteModule;
