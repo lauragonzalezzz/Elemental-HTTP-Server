@@ -37,7 +37,7 @@ var postModule = function(req, res, path){
 
     req.on('end', function(){
 
-      fs.readFile("./template.html", function(err, data){
+      fs.readFile("./handler-methods/template.html", function(err, data){
         if (err){
           process.stdout.write("Oh noes! I made a mistake!");
         }
@@ -73,7 +73,6 @@ var postModule = function(req, res, path){
         var num = Number(h3Arr[3]);
         var newNum = num + 1;
         h3Arr[3] = newNum;
-        console.log('h3Arr',h3Arr);
         var newLine = h3Arr.join(" ");
 
         indexData = indexData.replace("</ol>", newLink);
