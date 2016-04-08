@@ -1,9 +1,9 @@
-var getMethod = function(req, res, path, errCallback){
+var getMethod = function(req, res, path, returnError){
   var fs = require('fs');
 
   return fs.readFile("public" + path, function(err, data){
     if (err){
-      return errCallback(res);
+      return returnError(res);
     }
     else {
       res.writeHead(200, {

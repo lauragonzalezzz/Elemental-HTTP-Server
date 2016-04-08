@@ -13,7 +13,7 @@ var deleteModule = function(req, res, path){
 
         fs.unlink("public" + path);
 
-        fs.readFile("./public/index.html", function(err, data){
+        return fs.readFile("./public/index.html", function(err, data){
           if (err){
             process.stdout.write("Oh noes! I made a mistake!");
           }
@@ -48,8 +48,7 @@ var deleteModule = function(req, res, path){
               "Content-Type": 'application/json',
               "Server": "LG Servers"
             });
-            res.write('{"Success" : true}');
-            res.end();
+            res.end('{"Success" : true}');
           });
         }); //Ends Public readFile
       }); //Ends path readFile

@@ -1,4 +1,4 @@
-var postModule = function(req, res, path){
+var postModule = function(req, res, path, returnError){
   var fs = require('fs');
 
   if (path !== "/elements"){

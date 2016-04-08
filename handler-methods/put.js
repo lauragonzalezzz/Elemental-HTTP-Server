@@ -1,4 +1,4 @@
-var putMethod = function(req, res, path){
+var putMethod = function(req, res, path, returnError){
   var fs = require('fs');
   fs.readFile("public" + path, function(err, data){
     if (err){
