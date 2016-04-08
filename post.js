@@ -73,7 +73,7 @@ var postModule = function(req, res, path){
         var num = Number(h3Arr[3]);
         var newNum = num + 1;
         h3Arr[3] = newNum;
-
+        console.log('h3Arr',h3Arr);
         var newLine = h3Arr.join(" ");
 
         indexData = indexData.replace("</ol>", newLink);

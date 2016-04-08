@@ -24,9 +24,21 @@ var deleteModule = function(req, res, path){
 
           var newLink = "  <li>\n      <a href='./public" + path + "'>" + name + "</a>\n    </li>";
 
+          var h3 = indexData.indexOf("<h3>");
+          var ol = indexData.indexOf("<ol>");
+          var oldLine = indexData.slice(h3, ol);
+
+          var h3Arr = indexData.slice(h3, ol).split(" ");
+          var num = Number(h3Arr[3]);
+          var newNum = num - 1;
+          h3Arr[3] = newNum;
+
+          var newLine = h3Arr.join(" ");
+
           if (indexData.indexOf(newLink) !== -1){
             indexData = indexData.replace(newLink, '');
           };
+          indexData = indexData.replace(oldLine, newLine);
 
           fs.writeFile("./public/index.html", indexData, function(err){
             if (err){
