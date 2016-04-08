@@ -4,6 +4,7 @@ var AUTH = require('./private.js');
 var deleteModule = require('./delete.js');
 var putModule = require('./put.js');
 var postModule = require('./post.js');
+var getModule = require('./get.js');
 
 var server = http.createServer(function(req, res){
   var method = req.method;
@@ -13,20 +14,8 @@ var server = http.createServer(function(req, res){
   date = date.toUTCString();
 
   if (method === 'GET'){
-    fs.readFile("public" + path, function(err, data){
-      if (err){
-        return returnError(res)
-      }
-      else {
-        res.writeHead(200, {
-          "Content-Type": 'text/html',
-          "Server": "LG Servers"
-        });
-        res.write(data);
-        return res.end();
-      }
-    }); //Ends fs.readFile
-  } //Ends If Statement
+    return getModule(req, res, path, returnError);
+  }
 
   if (!req.headers.authorization){ //If no auth header, no access
     res.writeHead(401, {
@@ -65,7 +54,7 @@ server.listen({port: 8080}, function(){
 });
 
 function returnError(res){
-  fs.readFile('./public/404.html', function(err, data){
+  return fs.readFile('./public/404.html', function(err, data){
     if (err){
       throw new Error(err);
     }
