@@ -5,7 +5,6 @@ var server = http.createServer(function(req, res){
   var method = req.method;
   var path = req.url;
   var myData = null;
-
   var date = new Date();
   date = date.toUTCString();
 
@@ -26,11 +25,8 @@ var server = http.createServer(function(req, res){
   } //Ends If Statement
 
   if (method === 'POST'){
-    if (path.lastIndexOf('.') === 0){
-      path = "public" + path + ".html";
-    }
-    else {
-      path = "public" + path;
+    if (path !== "/elements"){
+      returnError(res);
     }
 
     req.on('data', function(data){
@@ -62,48 +58,45 @@ var server = http.createServer(function(req, res){
         elementDescription === null) {
         return returnError(res);
       }
-      else {
-        res.writeHead(200, {
-          "Content-Type": 'application/json',
-          "Server": "LG Servers"
-        });
-        res.write('{"Success" : true}')
-        res.end();
-
-      } //ENDS ELSE
 
       req.on('end', function(){
-
-        var updatedFile = fs.createWriteStream(path);
 
         fs.readFile("./template.html", function(err, data){
           if (err){
             process.stdout.write("Oh noes! I made a mistake!");
           }
-          var tempData = data.toString();
+          var tempData = data.toString()
+            .replace("elementName", elementName)
+            .replace("elementSymbol", elementSymbol)
+            .replace("elementAtomicNumber", elementAtomicNumber)
+            .replace("elementDescription", elementDescription);
 
-          tempData = tempData.replace("elementName", elementName);
-          tempData = tempData.replace("elementSymbol", elementSymbol);
-          tempData = tempData.replace("elementAtomicNumber", elementAtomicNumber);
-          tempData = tempData.replace("elementDescription", elementDescription);
+          fs.writeFile("./public/" + elementName + ".html", tempData, function(err){
+            if (err){
+              throw new Error(err);
+            };
+            res.writeHead(200, {
+              "Content-Type" : "application/json"
+            });
+          res.end('{"Success" : true}');
+          });
 
-        updatedFile.write(tempData);
-        updatedFile.end();
-        }); //Ends template.read
+          }); //Ends template.read
 
         fs.readFile("./public/index.html", function(err, data){
           if (err){
             process.stdout.write("Oh noes! I made a mistake!");
           }
           var indexData = data.toString();
-          var newLink = "  <li>\n      <a href='" + path + "'>" + elementName + "</a>\n    </li>\n  </ol>";
+          var newLink = "  <li>\n      <a href='./public/" + elementName + ".html'>" + elementName + "</a>\n    </li>\n  </ol>";
 
           indexData = indexData.replace("</ol>", newLink);
-
-          var newIndex = fs.createWriteStream("./public/index.html");
-          newIndex.write(indexData);
-          newIndex.end();
-        });
+          fs.writeFile("./public/index.html", indexData, function(err){
+            if (err){
+              throw new Error(err);
+            };
+          });
+        }); //Ends read index
       }); //Ends req.on('end')
     }); //Ends req.on('data')
   }  //Ends if METHOD === POST
@@ -216,25 +209,25 @@ var server = http.createServer(function(req, res){
         name = name.replace(".html", "");
         name = name.charAt(0).toUpperCase() + name.slice(1);
 
-        var newLink = "  <li>\n      <a href='public" + path + "'>" + name + "</a>\n    </li>";
+        var newLink = "  <li>\n      <a href='./public" + path + "'>" + name + "</a>\n    </li>";
 
         if (indexData.indexOf(newLink) !== -1){
           indexData = indexData.replace(newLink, '');
         };
 
-
-        var newIndex = fs.createWriteStream("./public/index.html");
-        newIndex.write(indexData);
-        newIndex.end();
-      });
-
-      res.writeHead(200, {
-        "Content-Type": 'application/json',
-        "Server": "LG Servers"
-      });
-      res.write('{"Success" : true}');
-      res.end();
-    }); //Ends Public readFile
+        fs.writeFile("./public/index.html", indexData, function(err){
+          if (err){
+            throw new Error(err);
+          }
+          res.writeHead(200, {
+            "Content-Type": 'application/json',
+            "Server": "LG Servers"
+          });
+          res.write('{"Success" : true}');
+          res.end();
+        });
+      }); //Ends Public readFile
+    }); //Ends path readFile
   } //Ends if METHOD === DELETE
 
 }); //Ends Server
