@@ -9,9 +9,6 @@ var getModule = require('./get.js');
 var server = http.createServer(function(req, res){
   var method = req.method;
   var path = req.url;
-  var myData = null;
-  var date = new Date();
-  date = date.toUTCString();
 
   if (method === 'GET'){
     return getModule(req, res, path, returnError);
