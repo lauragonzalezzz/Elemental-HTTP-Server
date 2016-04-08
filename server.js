@@ -6,7 +6,7 @@ var putModule = require('./put.js');
 var postModule = require('./post.js');
 var getModule = require('./get.js');
 
-var server = http.createServer(function(req, res){
+http.createServer(function(req, res){
   var method = req.method;
   var path = req.url;
 
@@ -44,10 +44,8 @@ var server = http.createServer(function(req, res){
     deleteModule(req, res, path);
   }
 
-}); //Ends Server
-
-server.listen({port: 8080}, function(){
-  var address = server.address();
+}).listen({port: 8080}, function(){
+  process.stdout.write('Server is listening on port 8080\n');
 });
 
 function returnError(res){
