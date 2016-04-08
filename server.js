@@ -12,7 +12,7 @@ var server = http.createServer(function(req, res){
   if (method === 'GET'){
     fs.readFile("public" + path, function(err, data){
       if (err){
-        returnError(res)
+        return returnError(res)
       }
       else {
         res.writeHead(200, {
@@ -20,7 +20,7 @@ var server = http.createServer(function(req, res){
           "Server": "LG Servers"
         });
         res.write(data);
-        res.end();
+        return res.end();
       }
     }); //Ends fs.readFile
   } //Ends If Statement
@@ -60,9 +60,7 @@ var server = http.createServer(function(req, res){
         elementSymbol === null ||
         elementAtomicNumber === null ||
         elementDescription === null) {
-        process.stdout.write('NOPE');
-        returnError(res);
-        res.end();
+        return returnError(res);
       }
       else {
         res.writeHead(200, {
@@ -106,7 +104,6 @@ var server = http.createServer(function(req, res){
           newIndex.write(indexData);
           newIndex.end();
         });
-
       }); //Ends req.on('end')
     }); //Ends req.on('data')
   }  //Ends if METHOD === POST
@@ -119,7 +116,7 @@ var server = http.createServer(function(req, res){
           "Server": "LG Servers"
         });
         res.write('{ "error" : "resource "' + path + '" does not exist"}');
-        return res.end();
+        res.end();
       }
       req.on('data', function(data){
         putData = data.toString();
@@ -149,9 +146,7 @@ var server = http.createServer(function(req, res){
           elementSymbol === null ||
           elementAtomicNumber === null ||
           elementDescription === null) {
-          process.stdout.write('NOPE');
-          returnError(res);
-          res.end();
+          return returnError(res);
         }
         else {
           res.writeHead(200, {
@@ -159,7 +154,6 @@ var server = http.createServer(function(req, res){
             "Server": "LG Servers"
           });
           res.write('{"Success" : true}');
-          process.stdout.write('Success');
           res.end();
         } //ENDS ELSE
 
@@ -239,14 +233,11 @@ var server = http.createServer(function(req, res){
         "Server": "LG Servers"
       });
       res.write('{"Success" : true}');
-      process.stdout.write('Success\n');
       res.end();
     }); //Ends Public readFile
   } //Ends if METHOD === DELETE
 
-
 }); //Ends Server
-
 
 server.listen({port: 8080}, function(){
   var address = server.address();
